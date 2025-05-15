@@ -34,8 +34,8 @@ This project provides a secure Nginx setup with Docker, including ModSecurity WA
 
 1. Clone this repository:
    ```bash
-   git clone [repository-url]
-   cd [repository-name]
+   git clone git@github.com:luckyfoxdesign/docker-nginx-http.git
+   cd docker-nginx-http
    ```
 
 2. Configure your environment variables:
