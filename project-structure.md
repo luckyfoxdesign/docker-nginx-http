@@ -1,0 +1,11 @@
+| - conf/
+| -- snippets/
+| --- security-headers.conf
+| -- nginx.conf
+| - .env
+| - compose.yml
+| - Dockerfile
+| - README.md
+| - project-structure.md
+| - env.example
+| - .gitignore
