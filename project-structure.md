@@ -1,7 +1,8 @@
 | - conf/
 | -- snippets/
 | --- security-headers.conf
-| -- nginx.conf
+| -- http-nginx.conf
+| -- https-nginx.conf
 | - .env
 | - compose.yml
 | - Dockerfile
