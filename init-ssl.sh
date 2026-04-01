@@ -38,7 +38,7 @@ for domain in $DOMAINS; do
     DOMAIN_FLAGS="$DOMAIN_FLAGS -d $domain"
 done
 
-docker compose --profile https run --rm certbot certonly \
+docker compose --profile https run --rm --entrypoint certbot certbot certonly \
     --webroot -w /var/www/certbot \
     --email "${LETSENCRYPT_EMAIL}" \
     $DOMAIN_FLAGS \

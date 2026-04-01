@@ -39,6 +39,6 @@ services:
 
 networks:
   frontend_net:
-    driver: bridge
+    external: true
   internal_net:
-    internal: true
+    external: true
