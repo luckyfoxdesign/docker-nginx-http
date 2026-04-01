@@ -1,6 +1,6 @@
 # Nginx Docker — HTTP / HTTPS
 
-Готовый nginx в Docker с защитой: rate limiting, security headers (включая HSTS), токен-авторизация, ModSecurity WAF (опционально).
+Готовый nginx в Docker с защитой: rate limiting, security headers (включая HSTS), токен-авторизация.
 
 Поддерживает два режима:
 - **HTTP** — для локальной разработки или сервера без SSL
@@ -32,7 +32,7 @@ conf/
 .env                    # Твои настройки (не коммитить!)
 .env.example            # Шаблон настроек
 compose.yml             # Docker Compose
-Dockerfile              # Образ nginx + ModSecurity
+Dockerfile              # Образ nginx Alpine
 entrypoint.sh           # Подстановка переменных при старте
 init-ssl.sh             # Скрипт первого запуска с HTTPS
 ```
@@ -217,19 +217,6 @@ AUTH_TOKEN=Bearer <сгенерированный-токен>
 ```bash
 curl -H "Authorization: Bearer <твой-токен>" https://example.com/api/signal
 ```
-
----
-
-## Включить ModSecurity (WAF)
-
-ModSecurity установлен, но по умолчанию выключен. Чтобы включить для конкретного сайта:
-
-1. Добавь правила (например, [OWASP CRS](https://coreruleset.org/)) в папку `conf/modsec/`
-2. Добавь в нужный `server {}` блок:
-   ```nginx
-   modsecurity on;
-   modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;
-   ```
 
 ---
 
