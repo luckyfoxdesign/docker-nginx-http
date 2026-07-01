@@ -3,6 +3,7 @@ services:
     build: .
     container_name: nginx-c
     restart: always
+    init: true
     volumes:
       - ./conf/${NGINX_CONF:-http-nginx.conf}:/etc/nginx/nginx.conf.template:ro
       - ./conf/snippets:/etc/nginx/snippets:ro

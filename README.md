@@ -1,19 +1,21 @@
 # Nginx Docker — HTTP / HTTPS
 
-Готовый nginx в Docker с защитой: rate limiting, security headers (включая HSTS), токен-авторизация.
+🇬🇧 English | 🇷🇺 [Русский](README.ru.md)
 
-Поддерживает два режима:
-- **HTTP** — для локальной разработки или сервера без SSL
-- **HTTPS** — для продакшена, сертификаты Let's Encrypt через Certbot
+Production-ready nginx in Docker with built-in protection: rate limiting, security headers (including HSTS), token authorization.
+
+Supports two modes:
+- **HTTP** — for local development or a server without SSL
+- **HTTPS** — for production, Let's Encrypt certificates via Certbot
 
 ---
 
-## Что нужно перед началом
+## Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (включает Docker Compose)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
 - Git
 
-Проверь что всё установлено:
+Check that everything is installed:
 ```bash
 docker --version
 docker compose version
@@ -21,123 +23,123 @@ docker compose version
 
 ---
 
-## Структура проекта
+## Project structure
 
 ```
 conf/
-  http-nginx.conf       # Конфиг nginx для HTTP-режима
-  https-nginx.conf      # Конфиг nginx для HTTPS-режима
+  http-nginx.conf       # nginx config for HTTP mode
+  https-nginx.conf      # nginx config for HTTPS mode
   snippets/
-    security-headers.conf  # Заголовки безопасности
-.env                    # Твои настройки (не коммитить!)
-.env.example            # Шаблон настроек
+    security-headers.conf  # Security headers
+.env                    # Your settings (do not commit!)
+.env.example            # Settings template
 compose.yml             # Docker Compose
-Dockerfile              # Образ nginx Alpine
-entrypoint.sh           # Подстановка переменных при старте
-init-ssl.sh             # Скрипт первого запуска с HTTPS
+Dockerfile              # nginx Alpine image
+entrypoint.sh           # Env var substitution on startup
+init-ssl.sh             # First-run script for HTTPS
 ```
 
 ---
 
-## Режим 1 — HTTP (локально или сервер без SSL)
+## Mode 1 — HTTP (local or server without SSL)
 
-### Шаг 1 — Клонируй репозиторий
+### Step 1 — Clone the repository
 
 ```bash
 git clone git@github.com:luckyfoxdesign/docker-nginx-http.git
 cd docker-nginx-http
 ```
 
-### Шаг 2 — Создай файл настроек
+### Step 2 — Create the settings file
 
 ```bash
 cp .env.example .env
 ```
 
-Открой `.env` и заполни:
+Open `.env` and fill it in:
 
 ```env
-NGINX_CONF=http-nginx.conf       # HTTP-режим
-DOMAINS=example.com              # Твой домен (или localhost)
-PRIMARY_DOMAIN=example.com       # Главный домен (тот же)
-LETSENCRYPT_EMAIL=               # Можно оставить пустым
-AUTH_TOKEN=Bearer замени-это     # Секретный токен для API
+NGINX_CONF=http-nginx.conf       # HTTP mode
+DOMAINS=example.com              # Your domain (or localhost)
+PRIMARY_DOMAIN=example.com       # Primary domain (same one)
+LETSENCRYPT_EMAIL=               # Can be left empty
+AUTH_TOKEN=Bearer change-this    # Secret token for the API
 ```
 
-> Для генерации сильного токена: `openssl rand -hex 32`
+> To generate a strong token: `openssl rand -hex 32`
 
-### Шаг 3 — Запусти
+### Step 3 — Start it
 
 ```bash
 docker compose up -d
 ```
 
-### Шаг 4 — Проверь что работает
+### Step 4 — Verify it works
 
 ```bash
 curl http://localhost/healthz
-# Должно вернуть: OK
+# Should return: OK
 ```
 
 ---
 
-## Режим 2 — HTTPS (продакшен на реальном сервере)
+## Mode 2 — HTTPS (production on a real server)
 
-> Домен должен уже указывать на IP сервера, иначе Let's Encrypt не выдаст сертификат.
+> The domain must already point to the server's IP, otherwise Let's Encrypt won't issue a certificate.
 
-### Шаг 1 — Клонируй репозиторий
+### Step 1 — Clone the repository
 
 ```bash
 git clone git@github.com:luckyfoxdesign/docker-nginx-http.git
 cd docker-nginx-http
 ```
 
-### Шаг 2 — Создай файл настроек
+### Step 2 — Create the settings file
 
 ```bash
 cp .env.example .env
 ```
 
-Открой `.env` и заполни:
+Open `.env` and fill it in:
 
 ```env
-NGINX_CONF=http-nginx.conf           # Скрипт сам переключит на https
-DOMAINS=example.com www.example.com  # Все домены через пробел
-PRIMARY_DOMAIN=example.com           # Главный домен (первый из списка)
-LETSENCRYPT_EMAIL=you@email.com      # Email для уведомлений Let's Encrypt
-AUTH_TOKEN=Bearer замени-это         # Секретный токен для API
+NGINX_CONF=http-nginx.conf           # The script will switch to https itself
+DOMAINS=example.com www.example.com  # All domains separated by spaces
+PRIMARY_DOMAIN=example.com           # Primary domain (first in the list)
+LETSENCRYPT_EMAIL=you@email.com      # Email for Let's Encrypt notifications
+AUTH_TOKEN=Bearer change-this        # Secret token for the API
 ```
 
-> Для генерации сильного токена: `openssl rand -hex 32`
+> To generate a strong token: `openssl rand -hex 32`
 
-### Шаг 3 — Запусти скрипт инициализации
+### Step 3 — Run the init script
 
 ```bash
 ./init-ssl.sh
 ```
 
-Скрипт сделает всё сам:
-1. Поднимет nginx на HTTP для проверки домена
-2. Получит SSL-сертификат от Let's Encrypt
-3. Переключит nginx на HTTPS
-4. Запустит автообновление сертификата
+The script does everything for you:
+1. Brings up nginx on HTTP for domain validation
+2. Obtains an SSL certificate from Let's Encrypt
+3. Switches nginx to HTTPS
+4. Starts automatic certificate renewal (certbot renews the files, nginx picks them up itself via reload every 12 hours — no manual steps, no downtime)
 
-### Шаг 4 — Проверь что работает
+### Step 4 — Verify it works
 
 ```bash
 curl https://example.com/healthz
-# Должно вернуть: OK
+# Should return: OK
 ```
 
 ---
 
-## Подключить свой контейнер
+## Connecting your own container
 
-Допустим, у тебя есть контейнер с приложением на порту 8080.
+Say you have an app container running on port 8080.
 
-### Шаг 1 — Добавь его в `compose.yml`
+### Step 1 — Add it to `compose.yml`
 
-Раскомментируй и отредактируй блок в конце файла:
+Uncomment and edit the block at the end of the file:
 
 ```yaml
 my-app:
@@ -145,13 +147,13 @@ my-app:
   container_name: my-app-c
   restart: always
   networks:
-    - internal_net   # Только внутренняя сеть — снаружи недоступен
-  # НЕ добавляй ports: — доступ только через nginx
+    - internal_net   # Internal network only — not reachable from outside
+  # Do NOT add ports: — access only through nginx
 ```
 
-### Шаг 2 — Добавь маршрут в nginx конфиг
+### Step 2 — Add a route to the nginx config
 
-Открой `conf/http-nginx.conf` (или `https-nginx.conf`) и добавь `location` внутрь нужного `server {}`:
+Open `conf/http-nginx.conf` (or `https-nginx.conf`) and add a `location` inside the relevant `server {}`:
 
 ```nginx
 location /api/ {
@@ -163,59 +165,60 @@ location /api/ {
 }
 ```
 
-> Имя `my-app-c` — это `container_name` из compose.yml. Docker использует его как DNS внутри сети.
+> The name `my-app-c` is the `container_name` from compose.yml. Docker uses it as DNS inside the network.
 
-### Шаг 3 — Перезапусти
+### Step 3 — Restart
 
 ```bash
-# HTTP-режим
+# HTTP mode
 docker compose up -d
 
-# HTTPS-режим
+# HTTPS mode
 docker compose --profile https up -d
 ```
 
 ---
 
-## Полезные команды
+## Useful commands
 
 ```bash
-# Посмотреть статус контейнеров
+# Check container status
 docker compose ps
 
-# Посмотреть логи nginx
+# View nginx logs
 docker compose logs -f nginx-s
 
-# Перезагрузить nginx без остановки (после изменения конфига)
+# Reload nginx without downtime (after changing the config)
+# New certificates are picked up automatically every 12h — manual reload is only needed after config edits
 docker exec nginx-c nginx -s reload
 
-# Принудительно обновить сертификат
+# Force-renew the certificate
 docker compose --profile https run --rm certbot renew --force-renewal
 
-# Остановить всё
+# Stop everything
 docker compose down
 ```
 
 ---
 
-## Настройка токен-авторизации для API
+## Setting up token authorization for the API
 
-Эндпоинты `/api/*` защищены Bearer-токеном. Сгенерируй сильный токен:
+The `/api/*` endpoints are protected by a Bearer token. Generate a strong token:
 
 ```bash
 openssl rand -hex 32
 ```
 
-Вставь результат в `.env`:
+Put the result into `.env`:
 
 ```env
-AUTH_TOKEN=Bearer <сгенерированный-токен>
+AUTH_TOKEN=Bearer <generated-token>
 ```
 
-Чтобы обратиться к API:
+To call the API:
 
 ```bash
-curl -H "Authorization: Bearer <твой-токен>" https://example.com/api/signal
+curl -H "Authorization: Bearer <your-token>" https://example.com/api/signal
 ```
 
 ---
